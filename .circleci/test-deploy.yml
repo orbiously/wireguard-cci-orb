@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  wireguard: orbiously/wireguard@dev:<<pipeline.git.revision>>
+  wireguard: orbiously/wireguard-cci@dev:<<pipeline.git.revision>>
   orb-tools: circleci/orb-tools@11.1
   win: circleci/windows@2.2.0
 
