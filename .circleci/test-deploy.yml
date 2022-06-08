@@ -19,6 +19,7 @@ jobs:
     command-tests-linux-supported:
       machine:
         image: ubuntu-2004:202201-02
+      steps:
         - wireguard/connect:
             config-var: WG_CONFIG_LIN_SUP
         - wireguard/disconnect
