@@ -84,51 +84,10 @@ printf "\nWireGuard for %s configured\n" "$PLATFORM"
 printf "\nPublic IP before VPN connection is %s\n\n" "$(curl -s http://checkip.amazonaws.com)"
 
 connect-linux() {
-  ET_phone_home=$(ss -Hnto state established '( sport = :ssh )' | head -n1 | awk '{ split($4, a, ":"); print a[1] }')
-  DEFAULT_GW="$(ip route show default|awk '{print $3}')"
-  echo "Default gateway is $DEFAULT_GW"
-
-  if [ -n "$ET_phone_home" ]; then
-    sudo ip route add "$ET_phone_home"/32 via "$DEFAULT_GW"
-    echo "Added route to $ET_phone_home/32 via default gateway"
-  fi
-
-  for IP in $(host runner.circleci.com | awk '{ print $4; }')
-    do
-      sudo ip route add "$IP"/32 via "$DEFAULT_GW"
-      echo "Added route to $IP/32 via default gateway"
-  done
-
-  for RESCONF_DNS in $(systemd-resolve --status | grep 'DNS Servers'|awk '{print $3}')
-    do
-      sudo ip route add "$RESCONF_DNS"/32 via "$DEFAULT_GW"
-      echo "Added route to $RESCONF_DNS/32 via default gateway"
-  done
-
   sudo wg-quick up wg0
 }
 
 connect-macos() {
-  DEFAULT_GW="$(route -n get default|grep gateway| awk '{print $2}')"
-            
-  sudo route -n add -net 169.254.0.0/16 "$DEFAULT_GW"
-  
-  for RESCONF_DNS in $(scutil --dns | grep 'nameserver\[[0-9]*\]'|sort -u|awk '{print$3}')
-    do
-      sudo route -n add -net "$RESCONF_DNS/32" "$DEFAULT_GW"
-  done
-  
-  ET_phone_home="$(netstat -an | grep '\.2222\s.*ESTABLISHED' | head -n1 | awk '{ split($5, a, "."); print a[1] "." a[2] "." a[3] "." a[4] }')"
-
-  if [ -n "$ET_phone_home" ]; then
-    sudo route -n add -net "$ET_phone_home/32" "$DEFAULT_GW"
-  fi
-  
-  for IP in $(host runner.circleci.com | awk '{ print $4; }')
-    do
-      sudo route -n add -net "$IP/32" "$DEFAULT_GW"
-  done
-    
 cat << EOF | sudo tee /Library/LaunchDaemons/com.wireguard.wg0.plist 1>/dev/null
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -157,11 +116,6 @@ EOF
 }
 
 connect-windows() {
-  ET_phone_home=$(netstat -an | grep ':22 .*ESTABLISHED' | head -n1 | awk '{ split($3, a, ":"); print a[1] }') 
-  DEFAULT_GW=$(ipconfig|grep "Default" | awk -F ': ' '{print$2}'| grep -v -e '^[[:blank:]]*$')
-  route add 169.254.0.0 MASK 255.255.0.0 "$DEFAULT_GW"
-  route add "$ET_phone_home" MASK 255.255.255.255 "$DEFAULT_GW"
-
   /c/progra~1/wireguard/wireguard.exe //installtunnelservice "C:\tmp\wg0.conf"
 }
 
