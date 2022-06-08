@@ -9,12 +9,15 @@ filters: &filters
     only: /.*/
 
 commands:
-  check-ip-routing
+  check-ip-routing:
+    description: "A check to confirm that traffic to ifconfig.co is routed through the VPN"
     steps:
       - run:
-          name: Check IP routing
-          command: |
-            echo "Public IP for traffic routed via the VPN is $(curl -s ifconfig.co)"
+          name: Traffic to ifconfig.co goes through the VPN
+          command: echo "Public IP for traffic routed via the VPN is $(curl -s ifconfig.co)"
+      - run:
+          name: Traffic to checkip.amazonaws.com does NOT go through the VPN
+          command: 
             echo "Public IP for traffic NOT routed via the VPN is $(curl -s checkip.amazonaws.com)"
 
 jobs:
