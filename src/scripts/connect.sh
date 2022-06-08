@@ -178,7 +178,7 @@ counter=1
     printf "\nUnable to establish connection within the allocated time ---> Giving up.\n"
   else
     printf "\nConnected to WireGuard server\n"
-    printf "\nPublic IP is now %s\n" "$(curl -s http://checkip.amazonaws.com)"
+    #printf "\nPublic IP is now %s\n" "$(curl -s http://checkip.amazonaws.com)"
   fi
 
 echo "export PLATFORM=$PLATFORM" >> "$BASH_ENV"
