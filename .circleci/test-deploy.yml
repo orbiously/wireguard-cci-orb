@@ -8,6 +8,15 @@ filters: &filters
   tags:
     only: /.*/
 
+commands:
+  check-ip-routing
+    steps:
+      - run:
+          name: Check IP routing
+          command: |
+            echo "Public IP for traffic routed via the VPN is $(curl -s ifconfig.co)"
+            echo "Public IP for traffic NOT routed via the VPN is $(curl -s checkip.amazonaws.com)"
+
 jobs:
     command-tests-linux:
       machine:
@@ -22,6 +31,7 @@ jobs:
       steps:
         - wireguard/connect:
             config-var: WG_CONFIG_LIN_SUP
+        - check-ip-routing
         - wireguard/disconnect
     command-tests-windows:
       executor:
@@ -36,6 +46,7 @@ jobs:
       steps:
         - wireguard/connect:
             config-var: WG_CONFIG_WIN_SUP
+        - check-ip-routing
         - wireguard/disconnect
     command-tests-macos:
       macos:
@@ -50,6 +61,7 @@ jobs:
       steps:
         - wireguard/connect:
             config-var: WG_CONFIG_MAC_SUP
+        - check-ip-routing
         - wireguard/disconnect
 workflows:
   test-deploy:
