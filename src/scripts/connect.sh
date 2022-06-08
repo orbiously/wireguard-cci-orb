@@ -1,4 +1,6 @@
 #!/bin/bash
+
+## Checking if WireGuard client is configured for full tunnel
 if echo "${!CONFIG}" | base64 --decode | grep "AllowedIPs" | grep -E "0.0.0.0/|::/"; then
   echo "It appears your WireGuard client is configured to route all traffic via the VPN (full tunnel)."
   echo "Full tunnel implementations are not supported in the CircleCI environment."
